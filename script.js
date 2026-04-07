@@ -10,6 +10,38 @@ const CLOUDFLARE_WORKER_URL =
 // Set initial message
 chatWindow.textContent = "👋 Hello! How can I help you today?";
 
+// Only allow prompts about skincare, haircare, or L'Oréal products.
+function isAllowedPrompt(prompt) {
+  const normalizedPrompt = prompt.toLowerCase();
+
+  const allowedKeywords = [
+    "skin",
+    "skincare",
+    "skin care",
+    "face cream",
+    "serum",
+    "cleanser",
+    "moisturizer",
+    "sunscreen",
+    "acne",
+    "hair",
+    "haircare",
+    "hair care",
+    "shampoo",
+    "conditioner",
+    "mask",
+    "treatment",
+    "scalp",
+    "l'oreal",
+    "loreal",
+    "l'oreal",
+    "loreal paris",
+    "l'oreal paris",
+  ];
+
+  return allowedKeywords.some((keyword) => normalizedPrompt.includes(keyword));
+}
+
 /* Handle form submit */
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -17,6 +49,13 @@ chatForm.addEventListener("submit", async (e) => {
   const prompt = userInput.value.trim();
 
   if (!prompt) {
+    return;
+  }
+
+  if (!isAllowedPrompt(prompt)) {
+    chatWindow.innerHTML =
+      "<p><strong>Assistant:</strong> Thanks for your message. Sorry but I can only help with requests about skincare, haircare, or L'Oréal products.</p>";
+    userInput.value = "";
     return;
   }
 
@@ -35,7 +74,7 @@ chatForm.addEventListener("submit", async (e) => {
           {
             role: "system",
             content:
-              "You are a helpful beauty assistant for L'Oreal. Keep answers short and beginner friendly.",
+              "You are a helpful beauty assistant for L'Oreal. Only answer skincare, haircare, or L'Oreal product questions. Keep answers short and beginner friendly.",
           },
           {
             role: "user",
